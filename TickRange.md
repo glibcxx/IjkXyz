@@ -3,8 +3,9 @@ title: tick range
 ---
 
 ```cpp
-void tickingRange(const int serverTickRange = 8)
+void tickingRange()
 {
+    const int serverTickRange = 8;
     uint8_t   list[serverTickRange * 3 + 1][serverTickRange * 3 + 1]{};
     for (int vertical = 0; vertical < serverTickRange; ++vertical)
     {
@@ -56,3 +57,5 @@ void tickingRange(const int serverTickRange = 8)
 ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢
 ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢ ▢
 ```
+
+视距见[ChunkSource](./ChunkSource.md)
