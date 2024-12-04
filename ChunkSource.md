@@ -24,6 +24,7 @@ title: ChunkSource
     -   OverworldGenerator
     -   NetherGenerator
     -   TheEndGenerator
+    -   ChunkSource 的实例间可存在父子关系
 -   xxxGenerator: 继承自 ChunkSource 和 WorldGenerator，每个为维度有一个对象作为区块源
 -   WorldGenerator: 生成器接口类
 -   LevelChunk: 区块
@@ -50,3 +51,4 @@ title: ChunkSource
 -   区块视图的区块列表只包含玩家自己加载的区块，MainChunkSource 通过弱指针获取被玩家等加载的区块。
 -   区块视图的范围由视距确定，与模拟距离无关
 -   玩家的区块视图是一个圆形（待定）
+-   Dimension 内的 MainChunkSource 对象的父对象为 DBChunkStorage，父对象的父对象为 xxxGenerator。DBChunkStorage 是一个从存档中读取数据的区块源，这样的父子关系是为了先试图从存档中读取区块，没有再新生成区块
