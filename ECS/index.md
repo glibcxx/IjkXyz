@@ -1227,7 +1227,30 @@ category: T
 ##### (ActorLegacyTickSystem)
 
 category: T  
-tickfunc: `_runActorLegacyTick`
+tickfunc: `_runActorLegacyTick`  
+tickrequire: `ActorOwnerComponent`, `ActorTickNeededComponent`, `FlagComponent<PlayerComponentFlag>`
+
+```cpp
+void ActorLegacyTickSystem::tickActorLegacyTickSystem(
+    EntityContext&            entity,
+    Actor&                    actor,
+    ActorTickNeededComponent& tickComp
+) {
+    WeakRef<BlockSource>        weak   = tickComp.getBlockSource();
+    StackRefResult<BlockSource> shared = weak.lock();
+    BlockSource*                region = shared.get();
+    if (!region) {
+        region = &actor.getDimensionConst().getBlockSourceFromMainChunkSource();
+    }
+    if (region) actor.tick(*region);
+    entity.removeComponent<ActorTickNeededComponent>();
+}
+
+void runActorLegacyTick(EntityContext& context, ActorOwnerComponent& actorComp, ActorTickNeededComponent& tickComp) {
+    Actor* actor = Actor::tryGetFromComponent(actorComp, false);
+    if (actor) ActorLegacyTickSystem::tickActorLegacyTickSystem(context, actor, tickComp);
+}
+```
 
 ##### (HumanoidMonsterAttackStateSystem)
 
