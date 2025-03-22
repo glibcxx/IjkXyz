@@ -961,6 +961,36 @@ category: Mt
 ###### (StartGlidingIntentSystem)
 
 category: Mt
+tickfunc: `?tickEntity@?$Impl@U?$type_list@AEBUMoveInputComponent@@AEBUVanillaClientGameplayComponent@@AEAUPlayerActionComponent@@AEAUPlayerInputRequestComponent@@@entt@@U?$type_list@U?$type_list@U?$Include@V?$FlagComponent@UActorMovementTickNeededFlag@@@@V?$FlagComponent@UArmorFlyEnabledFlag@@@@@@U?$Exclude@UPassengerComponent@@UOnGroundFlagComponent@@@@@entt@@AEBUMoveInputComponent@@AEBUVanillaClientGameplayComponent@@AEAUPlayerActionComponent@@AEAUPlayerInputRequestComponent@@@2@U?$type_list@$$V@2@@?$CandidateAdapter@$MP6AXU?$type_list@U?$Include@V?$FlagComponent@UActorMovementTickNeededFlag@@@@V?$FlagComponent@UArmorFlyEnabledFlag@@@@@@U?$Exclude@UPassengerComponent@@UOnGroundFlagComponent@@@@@entt@@AEBUMoveInputComponent@@AEBUVanillaClientGameplayComponent@@AEAUPlayerActionComponent@@AEAUPlayerInputRequestComponent@@@Z1?doStartGlidingIntent@StartGlidingIntentSystemImpl@@YAX01234@Z@details@@SAXAEBVStrictEntityContext@@AEBUMoveInputComponent@@AEBUVanillaClientGameplayComponent@@AEAUPlayerActionComponent@@AEAUPlayerInputRequestComponent@@@Z`
+tickrequire: `FlagComponent<ActorMovementTickNeededFlag>`, `FlagComponent<ArmorFlyEnabledFlag>`, `Exclude<PassengerComponent,OnGroundFlagComponent>`,`MoveInputComponent`, `VanillaClientGameplayComponent`, `PlayerActionComponent`, `PlayerInputRequestComponent`
+
+```cpp
+bool ActorMobilityUtils::canActivateElytra(
+    const MoveInputComponent&             input,
+    const VanillaClientGameplayComponent& clientGamePlay,
+    bool                                  glideIntent,
+    bool                                  flyIntent
+) {
+    return input.mJumping && !clientGamePlay.mWasJumping && !glideIntent && !flyIntent;
+}
+
+// inlined function
+[](const StrictEntityContext&             context,
+   const struct MoveInputComponent&       input,
+   struct VanillaClientGameplayComponent& clientGamePlay,
+   PlayerActionComponent&                 playerAction,
+   PlayerInputRequestComponent&           inputRequest) {
+    if (ActorMobilityUtils::canActivateElytra(
+            input,
+            clientGamePlay,
+            inputRequest.mHasGlideIntent,
+            inputRequest.mHasFlyIntent
+        )) {
+        playerAction.mPlayerActions.set(15);
+        inputRequest.mHasGlideIntent = true;
+    }
+};
+```
 
 ###### (StopGlidingIntentSystem)
 
@@ -1054,6 +1084,29 @@ category: Mt
 ###### (GlideInputSystem)
 
 category: Mt
+tickfunc: `?doGlideInputSystem@GlideInputSystem@@SAXAEBUMovementAbilitiesComponent@@AEBUMoveInputComponent@@AEBUActorDataFlagComponent@@AEAUFallFlyTicksComponent@@AEAUStateVectorComponent@@@Z`
+tickrequire: `FlagComponent<ActorMovementTickNeededFlag>`, `PlayerInputRequestComponent`, `MovementAbilitiesComponent`, `MoveInputComponent`, `ActorDataFlagComponent`, `FallFlyTicksComponent`, `StateVectorComponent`
+
+```cpp
+void GlideInputSystem::doGlideInputSystem(
+    const MovementAbilitiesComponent& abilities,
+    const MoveInputComponent&         input,
+    const ActorDataFlagComponent&     actorData,
+    FallFlyTicksComponent&            fallTicks,
+    StateVectorComponent&             svc
+) {
+    if (ActorDataFlagComponent::getStatusFlag(actorData, Gliding)) {
+        if (input.mJumping && abilities.getBool(MovementAbilities::Instabuild)
+            && fallTicks.mValue > Player::GLIDE_STOP_DELAY) {
+            Vec3 upAngle{0.0f, 0.1f, 0.0f};
+            svc.mPosDelta.y += upAngle;
+        }
+        ++fallTicks.mValue;
+    } else {
+        fallTicks.mValue = 0;
+    }
+}
+```
 
 ###### (ScaffoldingActionSystem)
 
